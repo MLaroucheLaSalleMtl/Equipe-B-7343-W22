@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - CinemachineTarget
+  - AICars
+  - Terminal
   layers:
   - Default
   - TransparentFX

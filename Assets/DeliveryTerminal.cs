@@ -20,9 +20,4 @@ public class DeliveryTerminal : MonoBehaviour
             popup.SetActive(false);
         }
     }
-    public void OnInteract()
-    {
-        DeliveryMenu.SetActive(true);
-        popup.SetActive(false);
-    }
 }
