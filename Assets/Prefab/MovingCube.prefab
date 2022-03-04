@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 9016781698098433503}
   m_Layer: 0
   m_Name: MovingCube
-  m_TagString: Untagged
+  m_TagString: MovingCube
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -125,7 +125,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb154938a172fdf4db5f4a5ceee50a1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  instance: {fileID: 0}
   scoretxt: {fileID: 0}
   scoreCanvas: {fileID: 0}
   initialCube: {fileID: 0}
   mail: {fileID: 2100000, guid: 4adb758c1f8b3d643861abd5a1f4c45f, type: 2}
+  miniGame: {fileID: 0}
+  miniMap: {fileID: 0}

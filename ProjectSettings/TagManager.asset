@@ -9,6 +9,11 @@ TagManager:
   - Terminal
   - Ground
   - DPoint
+  - Shop
+  - MovingCube
+  - Minigame
+  - Score
+  - ScoreTXT
   layers:
   - Default
   - TransparentFX

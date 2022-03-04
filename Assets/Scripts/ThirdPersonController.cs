@@ -14,6 +14,7 @@ namespace StarterAssets
 #endif
 	public class ThirdPersonController : MonoBehaviour
 	{
+		bool minigame = false;
 		[Header("Player")]
 		[Tooltip("Move speed of the character in m/s")]
 		public float MoveSpeed = 2.0f;
@@ -173,6 +174,7 @@ namespace StarterAssets
 
 		private void Move()
 		{
+			if (minigame == false) ;
 			// set target speed based on move speed, sprint speed and if sprint is pressed
 			float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
 

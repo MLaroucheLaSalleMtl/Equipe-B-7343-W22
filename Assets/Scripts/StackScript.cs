@@ -39,7 +39,7 @@ public class StackScript : MonoBehaviour
                box.transform.localScale.z <= 0f)
         {
             gameOver = true;
-
+            Application.Quit();
         }
 
         lastBox = box;

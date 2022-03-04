@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public static int score;
+    public static int score = 0;
     [SerializeField] MovingCube firstCube;
     public static GameManager instance = null;
     private CubeSpawner[] spawners;
@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     private CubeSpawner currentSpawner;
 
     public static float increasedspeed =1f;
+
 
     private void Awake()
     {
@@ -30,18 +31,17 @@ public class GameManager : MonoBehaviour
     }
     private void Update()
     {
-        
-    }
-    public void OnStopCube()
-    {
-        if(MovingCube.currentCube != null)
-        MovingCube.currentCube.Stop();
+        if (Input.GetButtonDown("Jump"))
+        {
+            if (MovingCube.currentCube != null)
+                MovingCube.currentCube.Stop();
 
-        spawnerindex = spawnerindex == 0 ? 1 : 0;
-        currentSpawner = spawners[spawnerindex];
+            spawnerindex = spawnerindex == 0 ? 1 : 0;
+            currentSpawner = spawners[spawnerindex];
 
-        increasedspeed += 0.3f;
-        currentSpawner.SpawnCube();
+            increasedspeed += 0.3f;
+            currentSpawner.SpawnCube();
+        }
     }
 
 }

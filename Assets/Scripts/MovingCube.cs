@@ -4,13 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class MovingCube : MonoBehaviour
 {
-    [SerializeField] Text scoretxt;
-    [SerializeField] Canvas scoreCanvas;
+    [SerializeField] public GameObject instance;
     [SerializeField] GameObject initialCube;
     [SerializeField] Material mail;
+    
+
     private int score;
 
     public static MovingCube currentCube { get; private set; }
@@ -22,6 +24,7 @@ public class MovingCube : MonoBehaviour
 
     private void OnEnable()
     {
+       
         if (lastCube == null)
             lastCube = GameObject.Find("Start").GetComponent<MovingCube>();
 
@@ -54,11 +57,21 @@ public class MovingCube : MonoBehaviour
         if (MathF.Abs(hangover) >= max)
         {
             //END GAME
-            scoretxt.text = "YOU GOT "+GameManager.score.ToString()+" PARCEL";
-            scoreCanvas.gameObject.SetActive(true);
+            GameObject[] MinigameUI;
+            MinigameUI = GameObject.FindGameObjectsWithTag("Minigame");
+            foreach(GameObject elements in MinigameUI)
+            {
+                elements.SetActive(false);
+            }
+            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerInput>().ActivateInput();
+            GameObject.FindGameObjectWithTag("ScoreTXT").GetComponent<Text>().text = "YOU GOT "+ Interactions.score + " Parcels";
+            GameObject.FindGameObjectWithTag("Score").GetComponent<Canvas>().enabled = true;
             GameManager.increasedspeed = 1f;
             lastCube = null;
             currentCube = null;
+            Interactions.minigame = false;
+            Interactions.endGame = true;
+            CloseMiniGame();
         }
         else
         {
@@ -78,6 +91,11 @@ public class MovingCube : MonoBehaviour
 
         lastCube = this;
 
+    }
+
+    public void HideScore()
+    {
+        
     }
 
     private float GetHangover()
@@ -140,4 +158,17 @@ public class MovingCube : MonoBehaviour
         cube.AddComponent<Rigidbody>();
         Destroy(cube.gameObject, 1f);
     }
+
+    public void CloseMiniGame()
+    {
+        GameObject[] cubes;
+        cubes = GameObject.FindGameObjectsWithTag("MovingCube");
+        foreach(GameObject element in cubes)
+        {
+            Destroy(element);
+        }
+        SceneManager.UnloadSceneAsync(2);
+        
+    }
+
 }

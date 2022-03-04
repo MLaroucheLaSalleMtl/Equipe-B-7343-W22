@@ -5,37 +5,93 @@ using UnityEngine.UI;
 
 public class Shop_Script : MonoBehaviour
 {
-        [SerializeField] int money;
         [SerializeField] GameObject price;
         [SerializeField] Button Buy_btn;
-        [SerializeField] int item;
-        public Text Change_Text;
-        public string buy = "Buy";
+
+        [SerializeField] string Carname= "car";
+        [SerializeField] int CarPrice = 10000;
+        [SerializeField] int PlayerCash;
+
+        [SerializeField] string Drinkname = "drink";
+        [SerializeField] int Drink = 100;
+
+        [SerializeField] string Echellename = "echelle";
+        [SerializeField] int Echelle = 50000;
+
+        [SerializeField] string buy = "Buy";
 
         // Start is called before the first frame update
         void Start()
         {
-
+       
+        PlayerCash= PlayerPrefs.GetInt("Money", 0);
+        
         }
 
-    public void Buy()
+//------------------- Achat Car Item in Shop--------------------------------
+    public void BuyCar()
     {
-        if (PlayerPrefs.GetInt("Money") < item)
+        //-------Affichage de la sauvegarde-----
+        Debug.Log(PlayerPrefs.GetInt("Money")); 
+
+        //----On comparenot monaie fictif pour faire des achats------
+        if (PlayerCash < CarPrice)
         {
-            Debug.Log("Not Enough Money");
-            Change_Text.text = "Not Enough Money";
-            price.SetActive(false);
+            Debug.Log(" Not Enough Money");
+
+        //    Change_Text.text = "Not Enough Money";
+        //    price.SetActive(false);
+        }
+        else
+        {
+           Debug.Log("Enough Money");
+            PlayerCash = PlayerCash - CarPrice;
+            PlayerPrefs.SetInt("Money", PlayerCash);
+
+
+        //    Debug.Log(PlayerPrefs.GetInt("Money"));
+        //    Change_Text.text = "Buy";
+        //    Buy_btn.interactable = false;
+        //    //PlayerPrefs.SetString("Buy1", Change_Text.text);
+        //    int coin = PlayerPrefs.GetInt("Money");
+        //    money = money - item;
+        //    PlayerPrefs.SetInt("money", money);
+        //    price.SetActive(false);
+        }
+
+    }
+
+    //------------------ Achat Energie Item in Shop -------------------------
+    public void BuyDrink()
+    {
+        Debug.Log(PlayerPrefs.GetInt("Money"));
+
+        if (PlayerCash < Drink)
+        {
+            Debug.Log(" Not Enough Money");
+
         }
         else
         {
             Debug.Log("Enough Money");
-            Change_Text.text = "Buy";
-            Buy_btn.interactable = false;
-            PlayerPrefs.SetString("Buy1", Change_Text.text);
-            int coin = PlayerPrefs.GetInt("Money");
-            money = money - item;
-            PlayerPrefs.SetInt("money", money);
-            price.SetActive(false);
+            PlayerCash = PlayerCash - Drink;
+        }
+    }
+
+//----------------- Achat Ladder Item in Shop ----------------------
+    public void BuyEchelle()
+    {
+        Debug.Log(PlayerPrefs.GetInt("Money"));
+
+        if (PlayerCash < Echelle)
+        {
+            Debug.Log(" Not Enough Money");
+
+        }
+        else
+        {
+            Debug.Log("Enough Money");
+            PlayerCash = PlayerCash - Echelle;
         }
     }
 
