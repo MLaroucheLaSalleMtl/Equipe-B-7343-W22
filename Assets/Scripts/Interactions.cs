@@ -13,7 +13,6 @@ public class Interactions : MonoBehaviour
     public static bool endGame = false;
     public static bool minigame = false;
 
-    bool isClosed = true;
 
     [SerializeField] public GameObject delCompletText;
     [SerializeField] public GameObject deliveryLimiter;
@@ -25,11 +24,9 @@ public class Interactions : MonoBehaviour
     [SerializeField] public GameObject popup_Accept;
     [SerializeField] public GameObject popup_Complete;
     [SerializeField] public int currentDel;
-    //[SerializeField] public int delCount;
     [SerializeField] public Text adddel;
     [SerializeField] private Text numDel;
     [SerializeField] private Text txtmoney;
-    [SerializeField] public GameObject deliveryTerm;
     [SerializeField] public GameObject miniGame;
     [SerializeField] public GameObject miniMap;
     [SerializeField] public GameObject ChooseNumDeliveryCanvas;
@@ -39,6 +36,10 @@ public class Interactions : MonoBehaviour
 
     [SerializeField] public static int score;
 
+    [SerializeField] public GameObject Popup_Shop;
+    [SerializeField] public GameObject Shop_terminal;
+
+    bool shopInteract = false;
 
     bool esc = false;
 
@@ -48,16 +49,12 @@ public class Interactions : MonoBehaviour
     private int[] delArray = new int[3];
 
     int money=0;
-
-    int rnd = 0;
     int delCount = 0;
     int indexCount = 0;
     int counter = 0;
     int completed = 0;
-    bool restart = false;
 
     bool check;
-
 
     private void Start()
     {
@@ -80,18 +77,24 @@ public class Interactions : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Terminal"))
+        if (other.gameObject.CompareTag("Shop"))
+        {
+            shopInteract = true;
+            Popup_Shop.SetActive(true);
+
+        }
+        else if (other.gameObject.CompareTag("Terminal"))
         {
             termInteract = true;
             popup_Accept.SetActive(true);
         }
-        if (other.gameObject.CompareTag("DPoint"))
+        else if (other.gameObject.CompareTag("DPoint"))
         {
             dpoint = true;
             popup_Complete.SetActive(true);
             
             //currentdel=id du dp
-            currentDel = other.gameObject.GetComponent<DPoints>().Id;
+            currentDel = other.gameObject.GetComponentInParent<DPoints>().Id;
         }
     }
 
@@ -107,6 +110,11 @@ public class Interactions : MonoBehaviour
             dpoint = false;
             popup_Complete.SetActive(false);
         }
+        if (other.gameObject.CompareTag("Shop"))
+        {
+            shopInteract = false;
+            Popup_Shop.SetActive(false);
+        }
         RefreshDisplay();
     }
 
@@ -120,7 +128,7 @@ public class Interactions : MonoBehaviour
 
     public void OnTermInteract()
     {
-        if (termInteract && delCount <= 3)
+        if (termInteract && PlayerPrefs.GetInt("inDelivery") == 0)
         {
             miniMap.SetActive(false);
             popup_Accept.SetActive(false);
@@ -129,20 +137,18 @@ public class Interactions : MonoBehaviour
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
 
-
-            //Show the DP on a minimap
-
             termInteract = false;
-
-
-            //To Do :
-            //Show the delivery on a minimap
-
+            
+            
 
         }
-        else if (termInteract && delCount >= 3)
+        else if(shopInteract == true)
         {
-            DTWaypoint.SetActive(false);
+            Shop_terminal.SetActive(true);
+            Popup_Shop.SetActive(false);
+        }
+        else if (PlayerPrefs.GetInt("inDelivery") == 1 && termInteract)
+        {
             deliveryLimiter.SetActive(true);
             Invoke("HideLimiterText", 10);
         }
@@ -154,6 +160,7 @@ public class Interactions : MonoBehaviour
             popup_Complete.SetActive(false);
             completed++;
             dpoint = false;
+            
 
             if (completed == delCount)
             {
@@ -170,6 +177,8 @@ public class Interactions : MonoBehaviour
                 if (delCount == 1) money += 200 + ((200 * score) / 50);
                 else if (delCount == 2) money += 460 + ((460 * score) / 50);
                 else if (delCount == 3) money += 750 + ((750 * score) / 50);
+
+                PlayerPrefs.SetInt("inDelivery",0);
 
                 //reset values
                 ResetValue();
@@ -205,10 +214,10 @@ public class Interactions : MonoBehaviour
     {
         deliveryLimiter.SetActive(false);
     }
-    
+
     public void ShowMap()
     {
-        mapCanvas.SetActive(true);
+        miniMap.SetActive(true);
     }
     private void GenerateDP()
     {
@@ -228,7 +237,6 @@ public class Interactions : MonoBehaviour
     public void CloseMenus()
     {
         popup_Accept.SetActive(false);
-        deliveryTerm.SetActive(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         mapCanvas.SetActive(false);
@@ -273,6 +281,8 @@ public class Interactions : MonoBehaviour
         GameObject temp = Dp[currentDel];
         temp.transform.GetChild(0).gameObject.layer = 6;
         temp.transform.GetChild(0).transform.GetChild(0).gameObject.layer = 6;
+        indexCount = 1;
+        PlayerPrefs.SetInt("inDelivery", 1);
         //CloseMenus();
     }
 
@@ -287,27 +297,12 @@ public class Interactions : MonoBehaviour
 
     void ShowMiniGame()
     {
-        isClosed = false;
-        this.gameObject.GetComponent<PlayerInput>().DeactivateInput();
+        this.GetComponent<PlayerInput>().enabled = false;
         Interactions.minigame = true;
         minigame = true;
         miniGame.SetActive(true);
         miniMap.SetActive(false);
-        SceneManager.LoadSceneAsync(2, LoadSceneMode.Additive);
-    }
-
-    public void CloseMiniGame()
-    {
-        if(isClosed == false)
-        {
-            ShowScore();
-            Invoke("CloseScoreTxt", 10);
-            this.gameObject.GetComponent<PlayerInput>().ActivateInput();
-            miniGame.SetActive(false);
-            miniMap.SetActive(true);
-            isClosed = true;
-        }
-        
+        SceneManager.LoadSceneAsync(1, LoadSceneMode.Additive);
     }
     public void CloseScoreTxt()
     {
@@ -331,8 +326,6 @@ public class Interactions : MonoBehaviour
 
     void SaveValues()
     {
-        if(DeletePlayerPref.DeletedPref == false)
-        {
             PlayerPrefs.SetInt("Deliveries Completed", completed);
             PlayerPrefs.SetInt("Delivery Count", delCount);
             PlayerPrefs.SetInt("Money", money);
@@ -343,11 +336,6 @@ public class Interactions : MonoBehaviour
                     PlayerPrefs.SetInt(i.ToString(), Dp[i].gameObject.GetComponent<DPoints>().Id);
                 }
             }
-        }
-        else
-        {
-            DeletePlayerPref.DeletedPref = false;
-        }
     }
 
     void LoadValues()
@@ -369,6 +357,7 @@ public class Interactions : MonoBehaviour
         completed = 0;
         indexCount = 0;
         currentDel = 0;
+        GameManager.score = 0;
         for (int i = 0; i < Dp.Length; i++)
         {
             Dp[i].gameObject.GetComponent<DPoints>().Id=0;            
@@ -422,11 +411,16 @@ public class Interactions : MonoBehaviour
             isClosed = true;
             CloseMiniGame();
         }*/
-        if(minigame)
-        score = GameManager.score;
+        if (minigame)
+        {
+            score = GameManager.score;
+            this.GetComponent<PlayerInput>().enabled = false;
+        }
         if (endGame)
         {
             Invoke("HideScore", 10);
+            miniMap.SetActive(true);
+            this.GetComponent<PlayerInput>().enabled = true;
         }
     }
  

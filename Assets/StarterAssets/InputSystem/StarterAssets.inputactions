@@ -271,34 +271,6 @@
                     "isPartOfComposite": false
                 }
             ]
-        },
-        {
-            "name": "Minigame",
-            "id": "adb9209b-a2d5-4dfe-8b23-1d899b5b2a43",
-            "actions": [
-                {
-                    "name": "StopCube",
-                    "type": "Button",
-                    "id": "b8a01dfd-a0bd-43b3-8baf-35735b79cf90",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
-                    "id": "1a33af00-11d4-4e18-a4a4-5273fe3890ff",
-                    "path": "<Keyboard>/space",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "StopCube",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                }
-            ]
         }
     ],
     "controlSchemes": [

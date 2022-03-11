@@ -11,9 +11,6 @@ public class MovingCube : MonoBehaviour
     [SerializeField] public GameObject instance;
     [SerializeField] GameObject initialCube;
     [SerializeField] Material mail;
-    
-
-    private int score;
 
     public static MovingCube currentCube { get; private set; }
     public static MovingCube lastCube { get; private set; }
@@ -57,20 +54,14 @@ public class MovingCube : MonoBehaviour
         if (MathF.Abs(hangover) >= max)
         {
             //END GAME
+            Interactions.endGame = true;
             GameObject[] MinigameUI;
             MinigameUI = GameObject.FindGameObjectsWithTag("Minigame");
             foreach(GameObject elements in MinigameUI)
             {
                 elements.SetActive(false);
             }
-            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerInput>().ActivateInput();
-            GameObject.FindGameObjectWithTag("ScoreTXT").GetComponent<Text>().text = "YOU GOT "+ Interactions.score + " Parcels";
-            GameObject.FindGameObjectWithTag("Score").GetComponent<Canvas>().enabled = true;
-            GameManager.increasedspeed = 1f;
-            lastCube = null;
-            currentCube = null;
-            Interactions.minigame = false;
-            Interactions.endGame = true;
+            
             CloseMiniGame();
         }
         else
@@ -81,11 +72,11 @@ public class MovingCube : MonoBehaviour
         float direction = hangover > 0 ? 1f : -1f; //Si le cube n'a pas encore passé le cube initial, retourne -1.
                                                    //Si le cube à dépassé le cube initial, retoune 1
 
-        if (MoveDirection == MoveDirection.Z)
+        if (MoveDirection == MoveDirection.Z && Interactions.endGame == false)
         {
             SliceZ(hangover, direction);
         }
-        else
+        else if(MoveDirection == MoveDirection.X && Interactions.endGame == false)
             SliceX(hangover, direction);
 
 
@@ -161,14 +152,22 @@ public class MovingCube : MonoBehaviour
 
     public void CloseMiniGame()
     {
+        GameObject.FindGameObjectWithTag("ScoreTXT").GetComponent<Text>().text = "YOU GOT " + Interactions.score + " Parcels";
+        GameObject.FindGameObjectWithTag("Score").GetComponent<Canvas>().enabled = true;
+        GameManager.increasedspeed = 1f;
+        
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         GameObject[] cubes;
         cubes = GameObject.FindGameObjectsWithTag("MovingCube");
         foreach(GameObject element in cubes)
         {
             Destroy(element);
         }
-        SceneManager.UnloadSceneAsync(2);
-        
+        lastCube = null;
+        currentCube = null;
+        Interactions.minigame = false;
+        SceneManager.UnloadSceneAsync(1);
     }
 
 }

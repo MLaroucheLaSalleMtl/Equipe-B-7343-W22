@@ -49,14 +49,7 @@ public class Shop_Script : MonoBehaviour
             PlayerPrefs.SetInt("Money", PlayerCash);
 
 
-        //    Debug.Log(PlayerPrefs.GetInt("Money"));
-        //    Change_Text.text = "Buy";
-        //    Buy_btn.interactable = false;
-        //    //PlayerPrefs.SetString("Buy1", Change_Text.text);
-        //    int coin = PlayerPrefs.GetInt("Money");
-        //    money = money - item;
-        //    PlayerPrefs.SetInt("money", money);
-        //    price.SetActive(false);
+        
         }
 
     }
@@ -85,6 +78,7 @@ public class Shop_Script : MonoBehaviour
 
         if (PlayerCash < Echelle)
         {
+
             Debug.Log(" Not Enough Money");
 
         }

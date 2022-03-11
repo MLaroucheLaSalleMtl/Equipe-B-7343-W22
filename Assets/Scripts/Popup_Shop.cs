@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Interact_Shop : MonoBehaviour
 {
 
-    [SerializeField] public GameObject popup_Accept;
+    
 
-    //bool termInteract = false;
+    bool termInteract = false;
 
 
     // Start is called before the first frame update
@@ -17,11 +18,7 @@ public class Interact_Shop : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Shop"))
-        {
-            //termInteract = true;
-            popup_Accept.SetActive(true);
-        }
+        
         //if (other.gameObject.CompareTag("DPoint"))
         //{
         //    dpoint = true;
@@ -32,5 +29,18 @@ public class Interact_Shop : MonoBehaviour
         //}
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        
+        //RefreshDisplay();
+    }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+           
+            
+        }
+    }
 }
