@@ -9,6 +9,9 @@ public class AICarMove : MonoBehaviour {
 	GameObject[] targetNavMeshObjects;
 	int targetNavMeshObjectCounts;
 	int targetNavMeshObjectNow;
+	int carSpeed = 0;
+	//[SerializeField] GameObject player;
+
 
 	Vector3 startPos;
 	Vector3 startRot;
@@ -17,8 +20,31 @@ public class AICarMove : MonoBehaviour {
 	const float CAR_SPEED_MAX = 1.0f;
 
 	[SerializeField] public GameObject target;
-	// Use this for initialization
-	void Start () {
+
+    public int CarSpeed { get => carSpeed; set => carSpeed = value; }
+
+	public void RespawnPlayer(GameObject player)
+    {
+
+		//PlayerPrefs.SetFloat("position x", player.gameObject.transform.position.x);
+		//PlayerPrefs.SetFloat("position y", player.gameObject.transform.position.y);
+		//PlayerPrefs.SetFloat("position z", player.gameObject.transform.position.z);
+
+		player.SetActive(false);
+		
+		Invoke("ShowPlayer(this.gameObject)", 3);
+		
+
+
+	}
+
+	void ShowPlayer(GameObject player)
+    {
+		player.SetActive(true);
+    }
+
+    // Use this for initialization
+    void Start () {
 		
 		navMeshAgentCompornent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
 		/*

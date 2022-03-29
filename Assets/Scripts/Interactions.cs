@@ -13,7 +13,6 @@ public class Interactions : MonoBehaviour
     public static bool endGame = false;
     public static bool minigame = false;
 
-
     [SerializeField] public GameObject delCompletText;
     [SerializeField] public GameObject deliveryLimiter;
     [SerializeField] public GameObject DTWaypoint;
@@ -25,11 +24,15 @@ public class Interactions : MonoBehaviour
     [SerializeField] public GameObject popup_Complete;
     [SerializeField] public int currentDel;
     [SerializeField] public Text adddel;
-    [SerializeField] private Text numDel;
-    [SerializeField] private Text txtmoney;
+    [SerializeField] private static Text numDel;
+    [SerializeField] private static Text txtmoney;
     [SerializeField] public GameObject miniGame;
     [SerializeField] public GameObject miniMap;
     [SerializeField] public GameObject ChooseNumDeliveryCanvas;
+    [SerializeField] public GameObject FailText;
+
+    [SerializeField] public Text txtmoneyobj;
+    [SerializeField] public Text numDelobj;
 
     [SerializeField] public GameObject canvasScore;
     [SerializeField] public GameObject scoreTxt;
@@ -48,11 +51,14 @@ public class Interactions : MonoBehaviour
 
     private int[] delArray = new int[3];
 
-    int money=0;
-    int delCount = 0;
+    public static int money=0;
+    static int delCount = 0;
     int indexCount = 0;
     int counter = 0;
-    int completed = 0;
+    static int completed = 0;
+    int inDelivery = 0;
+    int playerLife = 100;
+    int numLife = 3;
 
     bool check;
 
@@ -60,10 +66,10 @@ public class Interactions : MonoBehaviour
     {
         gameManager = GameManager.instance;
         LoadValues();
-        Msg();
+        
         
         //ResetValue();
-        //Msg();
+        Msg();
         
         if (delCount != 0)
         {
@@ -73,7 +79,48 @@ public class Interactions : MonoBehaviour
         RefreshDisplay();
     }
 
+    private void Awake()
+    {
+        txtmoney = txtmoneyobj;
+        numDel = numDelobj;
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.CompareTag("AICars"))
+        {
+            playerLife -= hit.gameObject.GetComponentInParent<AICarMove>().CarSpeed;
+
+            if (playerLife <= 0) 
+            { 
+                hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn                
+            }
+            if (playerLife <= 0 && inDelivery == 1 && numLife > 0)
+            {
+                hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn
+                numLife--;
+            }
+            if (playerLife <= 0 && inDelivery == 1 && numLife <= 0)
+            {
+                deliveriesCanvas.SetActive(false);
+                this.gameObject.transform.position.Set(-70.201f, -15.548f, 10.453f);//reset position
+                ResetValue();
+                hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn
+                FailText.SetActive(true);
+                Invoke("HideFailText", 10);
+                DTWaypoint.SetActive(true);
+            }
+                
+            
+        } 
+    }
+
     
+
+    private void Project(int carSpeed)
+    {
+       
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -104,6 +151,12 @@ public class Interactions : MonoBehaviour
         {
             termInteract = false;
             popup_Accept.SetActive(false);
+            if (ChooseNumDeliveryCanvas.activeInHierarchy)
+            {
+                ChooseNumDeliveryCanvas.SetActive(false);
+                counter = 0;
+                adddel.text = counter.ToString();
+            }
         }
         if(other.gameObject.CompareTag("DPoint"))
         {
@@ -118,7 +171,7 @@ public class Interactions : MonoBehaviour
         RefreshDisplay();
     }
 
-    void RefreshDisplay()
+    public static void RefreshDisplay()
     {
         numDel.text = "Delivered: " + completed.ToString()+"/"+delCount;
         txtmoney.text = money.ToString("D6") + "$";
@@ -128,7 +181,7 @@ public class Interactions : MonoBehaviour
 
     public void OnTermInteract()
     {
-        if (termInteract && PlayerPrefs.GetInt("inDelivery") == 0)
+        if (termInteract && inDelivery == 0)
         {
             miniMap.SetActive(false);
             popup_Accept.SetActive(false);
@@ -144,10 +197,13 @@ public class Interactions : MonoBehaviour
         }
         else if(shopInteract == true)
         {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
             Shop_terminal.SetActive(true);
             Popup_Shop.SetActive(false);
+            miniMap.SetActive(false);
         }
-        else if (PlayerPrefs.GetInt("inDelivery") == 1 && termInteract)
+        else if (inDelivery == 1 && termInteract)
         {
             deliveryLimiter.SetActive(true);
             Invoke("HideLimiterText", 10);
@@ -155,7 +211,7 @@ public class Interactions : MonoBehaviour
 
         else if (dpoint)
         {
-            Debug.Log("currentdel: " + currentDel);
+            Msg();
             Dp[currentDel].SetActive(false);
             popup_Complete.SetActive(false);
             completed++;
@@ -178,7 +234,6 @@ public class Interactions : MonoBehaviour
                 else if (delCount == 2) money += 460 + ((460 * score) / 50);
                 else if (delCount == 3) money += 750 + ((750 * score) / 50);
 
-                PlayerPrefs.SetInt("inDelivery",0);
 
                 //reset values
                 ResetValue();
@@ -189,6 +244,7 @@ public class Interactions : MonoBehaviour
             Dp[currentDel].gameObject.GetComponent<DPoints>().Id = 0;
         }
             //Msg();
+            SaveValues();
             RefreshDisplay();
     }
 
@@ -208,6 +264,11 @@ public class Interactions : MonoBehaviour
     public void HideDelCompletText()
     {
         delCompletText.SetActive(false);
+    }
+
+    public void HideFailText()
+    {
+        FailText.SetActive(false);
     }
 
     public void HideLimiterText()
@@ -234,12 +295,23 @@ public class Interactions : MonoBehaviour
         
     }
        
+    public void CloseShop()
+    {
+        Shop_terminal.SetActive(false);
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        miniMap.SetActive(true);
+        
+    }
+
     public void CloseMenus()
     {
         popup_Accept.SetActive(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         mapCanvas.SetActive(false);
+        
+        
     }
     
     public void Confirm()
@@ -282,7 +354,7 @@ public class Interactions : MonoBehaviour
         temp.transform.GetChild(0).gameObject.layer = 6;
         temp.transform.GetChild(0).transform.GetChild(0).gameObject.layer = 6;
         indexCount = 1;
-        PlayerPrefs.SetInt("inDelivery", 1);
+        inDelivery = 1;
         //CloseMenus();
     }
 
@@ -326,23 +398,30 @@ public class Interactions : MonoBehaviour
 
     void SaveValues()
     {
-            PlayerPrefs.SetInt("Deliveries Completed", completed);
-            PlayerPrefs.SetInt("Delivery Count", delCount);
-            PlayerPrefs.SetInt("Money", money);
-            for (int i = 0; i < Dp.Length; i++)
+        PlayerPrefs.SetInt("Deliveries Completed", completed);
+        PlayerPrefs.SetInt("Delivery Count", delCount);
+        PlayerPrefs.SetInt("Money", money);
+        PlayerPrefs.SetInt("inDelivery", inDelivery);
+        PlayerPrefs.SetInt("PlayerLife", playerLife);
+        PlayerPrefs.SetInt("numLife", numLife);
+        for (int i = 0; i < Dp.Length; i++)
+        {
+            if (Dp[i].activeInHierarchy)
             {
-                if (Dp[i].activeInHierarchy)
-                {
-                    PlayerPrefs.SetInt(i.ToString(), Dp[i].gameObject.GetComponent<DPoints>().Id);
-                }
+                PlayerPrefs.SetInt(i.ToString(), Dp[i].gameObject.GetComponent<DPoints>().Id);
             }
+        }
     }
 
     void LoadValues()
     {
+        //PlayerPrefs.SetInt("Money", 400);
         completed = PlayerPrefs.GetInt("Deliveries Completed", 0);
         delCount = PlayerPrefs.GetInt("Delivery Count", 0);
+        inDelivery = PlayerPrefs.GetInt("inDelivery", 0);
         money = PlayerPrefs.GetInt("Money", 0);
+        playerLife = PlayerPrefs.GetInt("PlayerLife", 100);
+        numLife = PlayerPrefs.GetInt("numLife", 3);
         for(int i = 0; i < Dp.Length; i++)
         {
             if (PlayerPrefs.GetInt(i.ToString(), 0) != 0) 
@@ -354,9 +433,12 @@ public class Interactions : MonoBehaviour
     void ResetValue()
     {
         delCount = 0;
+        inDelivery = 0;
         completed = 0;
         indexCount = 0;
         currentDel = 0;
+        playerLife = 100;
+        numLife = 3;
         GameManager.score = 0;
         for (int i = 0; i < Dp.Length; i++)
         {
@@ -372,11 +454,12 @@ public class Interactions : MonoBehaviour
 
     void Msg()
     {
+        Debug.Log("delCount" + inDelivery);
         Debug.Log("completed" + completed);
         Debug.Log("delCount: " + delCount);
         Debug.Log("terminteract: " + termInteract);
         Debug.Log("delpoint: " + dpoint);
-        for (int i = 0; i < Dp.Length; i++) Debug.Log("dp" + i + ": " + PlayerPrefs.GetInt(i.ToString(), 0));
+        //for (int i = 0; i < Dp.Length; i++) Debug.Log("dp" + i + ": " + PlayerPrefs.GetInt(i.ToString(), 0));
     }
 
     private void OnApplicationQuit()
@@ -406,6 +489,7 @@ public class Interactions : MonoBehaviour
     }
     private void Update()
     {
+        money = PlayerPrefs.GetInt("Money");
         /*if(minigame == false)
         {
             isClosed = true;
@@ -421,7 +505,12 @@ public class Interactions : MonoBehaviour
             Invoke("HideScore", 10);
             miniMap.SetActive(true);
             this.GetComponent<PlayerInput>().enabled = true;
+            GameObject[] cubes;
+            cubes = GameObject.FindGameObjectsWithTag("MovingCube");
+            foreach (GameObject element in cubes)
+            {
+                Destroy(element);
+            }
         }
     }
- 
 }

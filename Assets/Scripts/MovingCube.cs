@@ -40,8 +40,11 @@ public class MovingCube : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        initialCube.GetComponent<MovingCube>().speed = 0f;
-        currentCube.speed = GameManager.increasedspeed;
+        if (!Interactions.endGame)
+        {
+            initialCube.GetComponent<MovingCube>().speed = 0f;
+            currentCube.speed = GameManager.increasedspeed;
+        }
     }
     public void Stop()
     {
@@ -147,7 +150,10 @@ public class MovingCube : MonoBehaviour
         }
 
         cube.AddComponent<Rigidbody>();
-        Destroy(cube.gameObject, 1f);
+        if(!Interactions.endGame)
+        {
+            Destroy(cube.gameObject, 1f);
+        }
     }
 
     public void CloseMiniGame()
@@ -158,12 +164,6 @@ public class MovingCube : MonoBehaviour
         
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        GameObject[] cubes;
-        cubes = GameObject.FindGameObjectsWithTag("MovingCube");
-        foreach(GameObject element in cubes)
-        {
-            Destroy(element);
-        }
         lastCube = null;
         currentCube = null;
         Interactions.minigame = false;

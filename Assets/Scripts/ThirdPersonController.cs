@@ -5,7 +5,6 @@ using UnityEngine.InputSystem;
 
 /* Note: animations are called via the controller for both the character and capsule using animator null checks
  */
-
 namespace StarterAssets
 {
 	[RequireComponent(typeof(CharacterController))]
@@ -15,12 +14,12 @@ namespace StarterAssets
 	public class ThirdPersonController : MonoBehaviour
 	{
 		bool minigame = false;
-		[Header("Player")]
-		[Tooltip("Move speed of the character in m/s")]
-		public float MoveSpeed = 2.0f;
-		[Tooltip("Sprint speed of the character in m/s")]
-		public float SprintSpeed = 5.335f;
-		[Tooltip("How fast the character turns to face movement direction")]
+        [Header("Player")]
+        [Tooltip("Move speed of the character in m/s")]
+        private static float moveSpeed = 0.75f;
+        [Tooltip("Sprint speed of the character in m/s")]
+        private static float sprintSpeed = 1.2f;
+        [Tooltip("How fast the character turns to face movement direction")]
 		[Range(0.0f, 0.3f)]
 		public float RotationSmoothTime = 0.12f;
 		[Tooltip("Acceleration and deceleration")]
@@ -69,7 +68,7 @@ namespace StarterAssets
 		private float _animationBlend;
 		private float _targetRotation = 0.0f;
 		private float _rotationVelocity;
-		private float _verticalVelocity;
+		public static float verticalVelocity;
 		private float _terminalVelocity = 53.0f;
 
 		// timeout deltatime
@@ -92,7 +91,10 @@ namespace StarterAssets
 
 		private bool _hasAnimator;
 
-		private void Awake()
+        public static float MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
+        public static float SprintSpeed { get => sprintSpeed; set => sprintSpeed = value; }
+
+        private void Awake()
 		{
 			// get a reference to our main camera
 			if (_mainCamera == null)
@@ -224,7 +226,7 @@ namespace StarterAssets
 			Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
 			// move the player
-			_controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+			_controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, verticalVelocity, 0.0f) * Time.deltaTime);
 
 			// update animator if using character
 			if (_hasAnimator)
@@ -249,16 +251,16 @@ namespace StarterAssets
 				}
 
 				// stop our velocity dropping infinitely when grounded
-				if (_verticalVelocity < 0.0f)
+				if (verticalVelocity < 0.0f)
 				{
-					_verticalVelocity = -2f;
+					verticalVelocity = -2f;
 				}
 
 				// Jump
 				if (_input.jump && _jumpTimeoutDelta <= 0.0f)
 				{
 					// the square root of H * -2 * G = how much velocity needed to reach desired height
-					_verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
+					verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
 
 					// update animator if using character
 					if (_hasAnimator)
@@ -297,9 +299,9 @@ namespace StarterAssets
 			}
 
 			// apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
-			if (_verticalVelocity < _terminalVelocity)
+			if (verticalVelocity < _terminalVelocity)
 			{
-				_verticalVelocity += Gravity * Time.deltaTime;
+				verticalVelocity += Gravity * Time.deltaTime;
 			}
 		}
 

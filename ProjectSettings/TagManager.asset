@@ -14,6 +14,7 @@ TagManager:
   - Minigame
   - Score
   - ScoreTXT
+  - Trampoline
   layers:
   - Default
   - TransparentFX
