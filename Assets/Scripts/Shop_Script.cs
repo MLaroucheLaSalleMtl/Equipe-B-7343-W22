@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 public class Shop_Script : MonoBehaviour
 {
-        [SerializeField] private Confirm_Btn thisConfirm;
+    public ItemSO item;
 
+        [SerializeField] public GameObject Popup_confirm;
         [SerializeField] GameObject price;
         [SerializeField] Button Buy_btn;
 
@@ -36,14 +37,12 @@ public class Shop_Script : MonoBehaviour
     public void BuyCar()
     {
         //-------Affichage de la sauvegarde-----
-        Debug.Log(PlayerPrefs.GetInt("Money")); 
-
+        Debug.Log(PlayerPrefs.GetInt("Money"));
         //----On comparenot monaie fictif pour faire des achats------
         if (Interactions.money < CarPrice)
         {
-            
+            Popup_confirm.SetActive(true);
             Debug.Log(" Not Enough Money");
-
         //    Change_Text.text = "Not Enough Money";
         //    price.SetActive(false);
         }
@@ -66,8 +65,8 @@ public class Shop_Script : MonoBehaviour
 
         if (Interactions.money < Drink)
         {
+            Popup_confirm.SetActive(true);
             Debug.Log(" Not Enough Money");
-
         }
         else
         {
@@ -87,9 +86,8 @@ public class Shop_Script : MonoBehaviour
 
         if (Interactions.money < Echelle)
         {
-
+            Popup_confirm.SetActive(true);
             Debug.Log(" Not Enough Money");
-
         }
         else
         {
@@ -100,6 +98,16 @@ public class Shop_Script : MonoBehaviour
         Interactions.RefreshDisplay();
     }
 
+    public void Accept_YES()
+    {
+        Popup_confirm.SetActive(false);
+
+    }
+
+    public void Refuse_NO()
+    {
+
+    }
     // Update is called once per frame
     void Update()
     {   

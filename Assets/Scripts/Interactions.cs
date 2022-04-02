@@ -13,12 +13,14 @@ public class Interactions : MonoBehaviour
     public static bool endGame = false;
     public static bool minigame = false;
 
+
     [SerializeField] public GameObject delCompletText;
     [SerializeField] public GameObject deliveryLimiter;
     [SerializeField] public GameObject DTWaypoint;
     [SerializeField] public GameObject mapCanvas;
     [SerializeField] public GameObject deliveriesCanvas;
     [SerializeField] public GameObject moneyCanvas;
+    [SerializeField] public GameObject inventoryCanvas;
     [SerializeField] public GameObject[] Dp;
     [SerializeField] public GameObject popup_Accept;
     [SerializeField] public GameObject popup_Complete;
@@ -48,6 +50,8 @@ public class Interactions : MonoBehaviour
 
     bool termInteract = false;
     bool dpoint=false;
+
+    bool inventory = false;
 
     private int[] delArray = new int[3];
 
@@ -187,8 +191,7 @@ public class Interactions : MonoBehaviour
             popup_Accept.SetActive(false);
             //deliveryTerm.SetActive(true);
             ChooseNumDeliveryCanvas.SetActive(true);
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            ShowCursor();
 
             termInteract = false;
             
@@ -197,8 +200,7 @@ public class Interactions : MonoBehaviour
         }
         else if(shopInteract == true)
         {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            ShowCursor();
             Shop_terminal.SetActive(true);
             Popup_Shop.SetActive(false);
             miniMap.SetActive(false);
@@ -298,8 +300,7 @@ public class Interactions : MonoBehaviour
     public void CloseShop()
     {
         Shop_terminal.SetActive(false);
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        HideCursor();
         miniMap.SetActive(true);
         
     }
@@ -307,8 +308,7 @@ public class Interactions : MonoBehaviour
     public void CloseMenus()
     {
         popup_Accept.SetActive(false);
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        HideCursor();
         mapCanvas.SetActive(false);
         
         
@@ -472,14 +472,42 @@ public class Interactions : MonoBehaviour
         if(esc == false)
         {
             esc = true;
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            ShowCursor();
         }
         else
         {
             esc = false;
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            HideCursor();
+        }
+    }
+
+    private void HideCursor()
+    {
+        GetComponent<PlayerInput>().enabled = true;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    private void ShowCursor()
+    {
+        this.GetComponent<PlayerInput>().enabled = false;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    public void Inventory()
+    {
+        Debug.Log("Inventory");
+        inventory = !inventory;
+        if (inventory)
+        {
+            ShowCursor();
+            inventoryCanvas.SetActive(true);
+        }
+        else
+        {
+            HideCursor();
+            inventoryCanvas.SetActive(false);
         }
     }
     private void HideScore()
@@ -511,6 +539,10 @@ public class Interactions : MonoBehaviour
             {
                 Destroy(element);
             }
+        }
+        if (Input.GetButtonDown("Inventory"))
+        {
+            Inventory();
         }
     }
 }
