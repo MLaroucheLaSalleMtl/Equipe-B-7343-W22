@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using StarterAssets;
 
 public class Interactions : MonoBehaviour
 {
@@ -55,12 +56,12 @@ public class Interactions : MonoBehaviour
 
     private int[] delArray = new int[3];
 
-    public static int money=0;
-    static int delCount = 0;
+    [SerializeField] public static int money=0;
+    public static int delCount = 0;
     int indexCount = 0;
     int counter = 0;
     static int completed = 0;
-    int inDelivery = 0;
+    public int inDelivery = 0;
     int playerLife = 100;
     int numLife = 3;
 
@@ -88,6 +89,7 @@ public class Interactions : MonoBehaviour
         txtmoney = txtmoneyobj;
         numDel = numDelobj;
     }
+
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
@@ -118,7 +120,14 @@ public class Interactions : MonoBehaviour
             
         } 
     }
-
+    public void FailDelivery()
+    {
+        ResetValue();
+        FailText.SetActive(true);
+        Invoke("HideFailText", 10);
+        DTWaypoint.SetActive(true);
+        RefreshDisplay();
+    }
     
 
     private void Project(int carSpeed)
@@ -178,7 +187,7 @@ public class Interactions : MonoBehaviour
     public static void RefreshDisplay()
     {
         numDel.text = "Delivered: " + completed.ToString()+"/"+delCount;
-        txtmoney.text = money.ToString("D6") + "$";
+        txtmoney.text = PlayerPrefs.GetInt("Money").ToString("D6") + "$";
     }
 
 
@@ -239,7 +248,10 @@ public class Interactions : MonoBehaviour
 
                 //reset values
                 ResetValue();
-                
+                ThirdPersonController.MoveSpeed = 0.75f;
+                ThirdPersonController.SprintSpeed = 1.2f;
+
+
                 Array.Clear(delArray, 0, delArray.Length);
                 
             }
@@ -329,8 +341,11 @@ public class Interactions : MonoBehaviour
                 //DTWaypoint.SetActive(false);
             }
             ShowMiniGame();
+            return;
         }
         //Invoke("ShowMap", 5);
+        HideCursor();
+        this.GetComponent<PlayerInput>().enabled = true;
     }
 
     public void AcceptDelivery()
@@ -388,7 +403,8 @@ public class Interactions : MonoBehaviour
 
     public void CloseNumDelivery()
     {
-        ChooseNumDeliveryCanvas.SetActive(false );
+        this.GetComponent<PlayerInput>().enabled = true;
+        ChooseNumDeliveryCanvas.SetActive(false);
     }
 
     public int GetRandomNbr()
@@ -447,6 +463,7 @@ public class Interactions : MonoBehaviour
             SaveValues();
             Array.Clear(delArray, 0, delArray.Length);
         }
+        
         SaveValues();
     }
 
@@ -483,7 +500,7 @@ public class Interactions : MonoBehaviour
 
     private void HideCursor()
     {
-        GetComponent<PlayerInput>().enabled = true;
+        this.GetComponent<PlayerInput>().enabled = true;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -517,12 +534,11 @@ public class Interactions : MonoBehaviour
     }
     private void Update()
     {
-        money = PlayerPrefs.GetInt("Money");
-        /*if(minigame == false)
+        if (CountTimer.FailDelivery)
         {
-            isClosed = true;
-            CloseMiniGame();
-        }*/
+            FailDelivery();
+            CountTimer.FailDelivery = false;
+        }
         if (minigame)
         {
             score = GameManager.score;

@@ -15,8 +15,8 @@ public class Confirm_Btn : MonoBehaviour
     private void Awake()
     {
 
-        yes_btn = transform.Find("YesBtn").GetComponent<Button>();
-        no_Btn= transform.Find("NoBtn").GetComponent<Button>();
+        yes_btn = transform.Find("yes_btn").GetComponent<Button>();
+        no_Btn= transform.Find("no_btn").GetComponent<Button>();
     }
 
     private void AddconfirmBtn(string text, Action Yesbtn, Action Nobtn)
@@ -25,16 +25,15 @@ public class Confirm_Btn : MonoBehaviour
         no_Btn.onClick.AddListener(new UnityEngine.Events.UnityAction(Nobtn));
 
     }
-    private void Yes_Btn()
+    public void Yes_Btn()
     {
         thisConfirm.gameObject.SetActive(false);
         Debug.Log("Yes touch");
     }
 
-    private void No_Btn()
+    public void No_Btn()
     {
-        thisConfirm.gameObject.SetActive(true);
+        thisConfirm.gameObject.SetActive(false);
         Debug.Log("No touch");
-
     }
 }

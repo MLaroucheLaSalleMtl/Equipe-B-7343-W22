@@ -9,6 +9,7 @@ public class ItemSO : ScriptableObject
 
     public void AssignItem(ItemSO item)
     {
+        Debug.Log("Assign item");
         Inventory.instance.AddItem(item);
     }
 }

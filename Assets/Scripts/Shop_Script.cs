@@ -5,113 +5,184 @@ using UnityEngine.UI;
 
 public class Shop_Script : MonoBehaviour
 {
+    Inventory inventory;
     public ItemSO item;
 
-        [SerializeField] public GameObject Popup_confirm;
+    [SerializeField] public GameObject fullInventory;
+    [SerializeField] public GameObject Popup_confirm;
         [SerializeField] GameObject price;
         [SerializeField] Button Buy_btn;
 
         [SerializeField] string Carname= "car";
         [SerializeField] int CarPrice = 10000;
-        //[SerializeField] int PlayerCash;
+
+        [SerializeField] int ItemId;
+        //0=car, 1=energyDrink, 2=trampoline, 3=telepote
 
         [SerializeField] string Drinkname = "drink";
-        [SerializeField] int Drink = 100;
+        [SerializeField] int DrinkPrice = 500;
 
-        [SerializeField] string Echellename = "echelle";
-        [SerializeField] int Echelle = 50000;
+        [SerializeField] string Trampolinename = "Trampoline";
+        [SerializeField] int TrampolinePrice = 1000;
+
+        [SerializeField] string Teleportname = "Teleporter";
+        [SerializeField] int TeleportPrice = 750;
 
 
-        [SerializeField] string buy = "Buy";
+    [SerializeField] string buy = "Buy";
 
-        // Start is called before the first frame update
-        void Start()
-        {
-        
-        Interactions.money = PlayerPrefs.GetInt("Money", 0);
+    private void Awake()
+    {
+    }
+    private void Update()
+    {
         Interactions.RefreshDisplay();
+    }
 
-        }
-
-//------------------- Achat Car Item in Shop--------------------------------
+    //------------------- Achat Car Item in Shop--------------------------------
     public void BuyCar()
     {
-        //-------Affichage de la sauvegarde-----
+        //-------Affichage de la sauvegarde-----------------------------------------
+
         Debug.Log(PlayerPrefs.GetInt("Money"));
-        //----On comparenot monaie fictif pour faire des achats------
-        if (Interactions.money < CarPrice)
+
+        ItemId = 0;
+
+        if (Inventory.instance.IsFull())
         {
-            Popup_confirm.SetActive(true);
-            Debug.Log(" Not Enough Money");
-        //    Change_Text.text = "Not Enough Money";
-        //    price.SetActive(false);
+            fullInventory.SetActive(true);
+            Invoke("HideMessage", 10);
+            return;
         }
         else
+        if (Interactions.money >= CarPrice) // Assez d'argent
         {
-            //Debug.Log("Enough 1 Money"+ PlayerCash);
-            Interactions.money = Interactions.money - CarPrice;
-            Debug.Log("Enough 2 Money"+ Interactions.money);
-            PlayerPrefs.SetInt("Money", Interactions.money);
- 
+            Popup_confirm.SetActive(true);
+            Debug.Log("Enough Money");
         }
-        
-        Interactions.RefreshDisplay();
+        else //Pas Assez d'argent
+        {
+            //To do show error messg
+
+            Debug.Log("Not Enough Money" + Interactions.money);
+            PlayerPrefs.SetInt("Money", Interactions.money);
+
+        }
     }
 
     //------------------ Achat Energie Item in Shop -------------------------
     public void BuyDrink()
     {
         Debug.Log(PlayerPrefs.GetInt("Money"));
+        
+        ItemId = 1;
 
-        if (Interactions.money < Drink)
+        if (Inventory.instance.IsFull())
         {
-            Popup_confirm.SetActive(true);
-            Debug.Log(" Not Enough Money");
+            fullInventory.SetActive(true);
+            Invoke("HideMessage", 10);
+            return;
         }
         else
+        if (Interactions.money >= DrinkPrice) // Assez d'argent
         {
-
-            Interactions.money = Interactions.money - Drink;
-            Debug.Log("Enough Money" + Interactions.money);
+            Popup_confirm.SetActive(true);
+            Debug.Log("Enough Money");
+        }
+        else //Pas Assez d'argent
+        {
+            //To do show error messg
+            
+            Debug.Log("Not Enough Money" + Interactions.money);
             PlayerPrefs.SetInt("Money", Interactions.money);
 
         }
-        Interactions.RefreshDisplay();
     }
 
     //----------------- Achat Ladder Item in Shop ----------------------
-    public void BuyEchelle()
+    public void BuyTrampoline()
     {
         Debug.Log(PlayerPrefs.GetInt("Money"));
 
-        if (Interactions.money < Echelle)
+        ItemId = 2;
+
+        if (Inventory.instance.IsFull())
         {
-            Popup_confirm.SetActive(true);
-            Debug.Log(" Not Enough Money");
+            fullInventory.SetActive(true);
+            Invoke("HideMessage", 10);
+            return;
         }
         else
+        if (Interactions.money >= TrampolinePrice) // Assez d'argent
         {
-            Interactions.money = Interactions.money - Echelle;
+            Popup_confirm.SetActive(true);
             Debug.Log("Enough Money");
-            
         }
-        Interactions.RefreshDisplay();
+        else //Pas Assez d'argent
+        {
+            //To do show error messg
+
+            Debug.Log("Not Enough Money" + Interactions.money);
+            PlayerPrefs.SetInt("Money", Interactions.money);
+
+        }
+    }
+    public void BuyTeleport()
+    {
+        Debug.Log(PlayerPrefs.GetInt("Money"));
+
+        ItemId = 3;
+
+        if (Inventory.instance.IsFull())
+        {
+            fullInventory.SetActive(true);
+            Invoke("HideMessage", 10);
+            return;
+        }
+        else
+        if (Interactions.money >= TeleportPrice) // Assez d'argent
+        {
+            Popup_confirm.SetActive(true);
+            Debug.Log("Enough Money");
+        }
+        else //Pas Assez d'argent
+        {
+            //To do show error messg
+
+            Debug.Log("Not Enough Money" + Interactions.money);
+            PlayerPrefs.SetInt("Money", Interactions.money);
+
+        }
     }
 
-    public void Accept_YES()
+public void Accept_YES()
     {
+        switch (ItemId)
+        {
+            case 0: Interactions.money = Interactions.money - CarPrice;
+                break;
+            case 1:
+                Interactions.money = Interactions.money - DrinkPrice;
+                break;
+            case 2:
+                Interactions.money = Interactions.money - TrampolinePrice;
+                break;
+            case 3:
+                Interactions.money = Interactions.money - TeleportPrice;
+                break;
+        }
         Popup_confirm.SetActive(false);
-
+        Debug.Log("Buy successful : money" + Interactions.money);
+        PlayerPrefs.SetInt("Money", Interactions.money);
+        Interactions.RefreshDisplay();
     }
 
     public void Refuse_NO()
     {
-
+        Popup_confirm.SetActive(false);
     }
-    // Update is called once per frame
-    void Update()
-    {   
-
-        Interactions.RefreshDisplay();
+    public void HideMessage()
+    {
+        fullInventory.SetActive(false);
     }
 }

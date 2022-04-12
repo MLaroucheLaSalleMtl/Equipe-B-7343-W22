@@ -3,7 +3,14 @@ guid: 10364b6471c90cb4995512913f5c2036
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - icon: {instanceID: 0}
+  - itemInSlot: {instanceID: 0}
+  - energy: {instanceID: 0}
+  - trampoline: {instanceID: 0}
+  - car: {instanceID: 0}
+  - teleport: {instanceID: 0}
+  - inDeliveryMessage: {fileID: 7585523395614667998, guid: fb2f6e100b5696744a250101a2b67e64, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
