@@ -8,7 +8,7 @@ public class CountTimer : MonoBehaviour
     public static bool FailDelivery = false;
     [SerializeField] public GameObject timerCanvas;
     [SerializeField] public Text timer;
-    private float Timestart = 300;
+    public static float Timestart = 300;
     float minutes;
     float seconds;
     int inDelivery;
@@ -42,6 +42,10 @@ public class CountTimer : MonoBehaviour
     {
         PlayerPrefs.Save();
     }
+    public static void ResetTimer()
+    {
+        Timestart = 300;
+    }
     // Update is called once per frame
     void Update()
     {
@@ -50,6 +54,7 @@ public class CountTimer : MonoBehaviour
         seconds = Mathf.FloorToInt(Timestart % 60);
         if (Timestart <= 0) 
         {
+            ResetTimer();
             Toggle_Timer();
             FailDelivery = true;
         }

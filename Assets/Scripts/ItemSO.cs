@@ -6,6 +6,7 @@ using UnityEngine;
 public class ItemSO : ScriptableObject
 {
     public Sprite icon;
+    public int id;
 
     public void AssignItem(ItemSO item)
     {

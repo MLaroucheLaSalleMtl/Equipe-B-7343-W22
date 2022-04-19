@@ -5,9 +5,13 @@ using StarterAssets;
 
 public class Inventory : MonoBehaviour
 {
+
     [SerializeField] public GameObject fullInventory;
     [SerializeField] public GameObject player;
     [SerializeField] public GameObject trampoline;
+    [SerializeField] public ItemSO energySO;
+    [SerializeField] public ItemSO teleportSO;
+    [SerializeField] public ItemSO trampolineSO;
     ItemSO item;
     public static Inventory instance = null;
     [SerializeField] SlotUI[] slots;
@@ -17,7 +21,8 @@ public class Inventory : MonoBehaviour
 
     private void Awake()
     {
-        PlayerPrefs.SetInt("Money", 500000);
+        LoadInventory();
+        
         if (instance == null)
         {
             instance = this;
@@ -27,12 +32,51 @@ public class Inventory : MonoBehaviour
             Destroy(instance);
         }
     }
-    
+    public void SaveInventory()
+    {
+        for (int i = 0; i < slots.Length; i++)
+        {
+            PlayerPrefs.SetInt("Items " + i, slots[i].itemId);
+        }
+        PlayerPrefs.Save();
+        Debug.Log("Inventory saved");
+    }
+
+    public void LoadInventory()
+    {
+        currentSlot = 0;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            slots[i].itemId = PlayerPrefs.GetInt("Items " + i, -1);
+        }
+            foreach (SlotUI slot in slots)
+            {
+                currentSlot++;
+                if (slot.itemId == energySO.id)
+                {
+                currentSlot--;
+                    AddItem(energySO);
+                }
+                else if (slot.itemId == trampolineSO.id)
+                {
+                currentSlot--;
+                    AddItem(trampolineSO);
+                }
+                else if(slot.itemId == teleportSO.id){
+                currentSlot--;
+                    AddItem(teleportSO);
+                }
+                
+            }
+        
+        currentSlot = 0;
+        Debug.Log("Inventory loaded");
+    }
     public void AddItem(ItemSO item)
     {
             Debug.Log("AddItem");
             slots[currentSlot].AddToSlot(item);
-            currentSlot++; 
+            currentSlot++;
     }
     public bool IsFull()
     {
@@ -45,7 +89,7 @@ public class Inventory : MonoBehaviour
                 break;
             }
         }
-        if (i == 15)
+        if (i == slots.Length)
         {
             return true;
         }
@@ -59,7 +103,10 @@ public class Inventory : MonoBehaviour
             return false;
         }*/
     }
-
+    private void OnApplicationQuit()
+    {
+        SaveInventory();
+    }
     private void OnTriggerEnter(Collider other)
     {
         Debug.Log("Trampoline");
@@ -85,7 +132,7 @@ public class Inventory : MonoBehaviour
     }
     public void UseTeleport()
     {
-        player.gameObject.transform.position = new Vector3(-53, -15, 18);
+        player.transform.position = new Vector3(-53, -15, 18);
     }
     private void JumpOnTrampoline()
     {
@@ -98,5 +145,9 @@ public class Inventory : MonoBehaviour
         {
             UseEnergyDrink();
         }
+    }
+    public void HideMessage()
+    {
+        fullInventory.SetActive(false);
     }
 }

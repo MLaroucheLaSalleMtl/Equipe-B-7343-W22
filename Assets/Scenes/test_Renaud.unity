@@ -760,6 +760,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2187855980800538557, guid: 25448583d999c994f8e79080afeb101e, type: 3}
+      propertyPath: m_TagString
+      value: MovingCube
+      objectReference: {fileID: 0}
     - target: {fileID: 2335350323407375475, guid: 25448583d999c994f8e79080afeb101e, type: 3}
       propertyPath: m_RootOrder
       value: 3

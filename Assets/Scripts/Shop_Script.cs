@@ -8,6 +8,7 @@ public class Shop_Script : MonoBehaviour
     Inventory inventory;
     public ItemSO item;
 
+    [SerializeField] public GameObject notEnoughMoney;
     [SerializeField] public GameObject fullInventory;
     [SerializeField] public GameObject Popup_confirm;
         [SerializeField] GameObject price;
@@ -23,7 +24,7 @@ public class Shop_Script : MonoBehaviour
         [SerializeField] int DrinkPrice = 500;
 
         [SerializeField] string Trampolinename = "Trampoline";
-        [SerializeField] int TrampolinePrice = 1000;
+        [SerializeField] int TrampolinePrice = 200;
 
         [SerializeField] string Teleportname = "Teleporter";
         [SerializeField] int TeleportPrice = 750;
@@ -91,7 +92,8 @@ public class Shop_Script : MonoBehaviour
         }
         else //Pas Assez d'argent
         {
-            //To do show error messg
+            notEnoughMoney.SetActive(true);
+            Invoke("HideMessage", 5);
             
             Debug.Log("Not Enough Money" + Interactions.money);
             PlayerPrefs.SetInt("Money", Interactions.money);
@@ -120,7 +122,8 @@ public class Shop_Script : MonoBehaviour
         }
         else //Pas Assez d'argent
         {
-            //To do show error messg
+            notEnoughMoney.SetActive(true);
+            Invoke("HideMessage", 5);
 
             Debug.Log("Not Enough Money" + Interactions.money);
             PlayerPrefs.SetInt("Money", Interactions.money);
@@ -147,7 +150,8 @@ public class Shop_Script : MonoBehaviour
         }
         else //Pas Assez d'argent
         {
-            //To do show error messg
+            notEnoughMoney.SetActive(true);
+            Invoke("HideMessage", 5);
 
             Debug.Log("Not Enough Money" + Interactions.money);
             PlayerPrefs.SetInt("Money", Interactions.money);
@@ -184,5 +188,6 @@ public void Accept_YES()
     public void HideMessage()
     {
         fullInventory.SetActive(false);
+        notEnoughMoney.SetActive(false);
     }
 }

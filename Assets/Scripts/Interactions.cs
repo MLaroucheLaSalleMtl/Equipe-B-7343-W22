@@ -6,11 +6,14 @@ using System;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using StarterAssets;
+using System.IO;
 
 public class Interactions : MonoBehaviour
 {
+
     GameManager gameManager;
 
+    [SerializeField] public static int score;
     public static bool endGame = false;
     public static bool minigame = false;
 
@@ -18,11 +21,12 @@ public class Interactions : MonoBehaviour
     [SerializeField] public GameObject delCompletText;
     [SerializeField] public GameObject deliveryLimiter;
     [SerializeField] public GameObject DTWaypoint;
-    [SerializeField] public GameObject mapCanvas;
-    [SerializeField] public GameObject deliveriesCanvas;
-    [SerializeField] public GameObject moneyCanvas;
+
+    [SerializeField] public GameObject timerCanvas;
     [SerializeField] public GameObject inventoryCanvas;
-    [SerializeField] public GameObject[] Dp;
+    [SerializeField] public GameObject[] currentDP;
+    [SerializeField] public GameObject[] dp;
+    [SerializeField] public GameObject[] dpItem;
     [SerializeField] public GameObject popup_Accept;
     [SerializeField] public GameObject popup_Complete;
     [SerializeField] public int currentDel;
@@ -36,27 +40,33 @@ public class Interactions : MonoBehaviour
 
     [SerializeField] public Text txtmoneyobj;
     [SerializeField] public Text numDelobj;
-
-    [SerializeField] public GameObject canvasScore;
     [SerializeField] public GameObject scoreTxt;
 
-    [SerializeField] public static int score;
-
+    [SerializeField] public GameObject canvasScore;
+    [SerializeField] public GameObject mapCanvas;
+    [SerializeField] public GameObject deliveriesCanvas;
+    [SerializeField] public GameObject moneyCanvas;
     [SerializeField] public GameObject Popup_Shop;
     [SerializeField] public GameObject Shop_terminal;
+    [SerializeField] public GameObject canvasEsc;
+
+
+
+
+
 
     bool shopInteract = false;
 
     bool esc = false;
 
     bool termInteract = false;
-    bool dpoint=false;
+    bool dpoint = false;
 
     bool inventory = false;
 
     private int[] delArray = new int[3];
 
-    [SerializeField] public static int money=0;
+    [SerializeField] public static int money = 0;
     public static int delCount = 0;
     int indexCount = 0;
     int counter = 0;
@@ -64,18 +74,24 @@ public class Interactions : MonoBehaviour
     public int inDelivery = 0;
     int playerLife = 100;
     int numLife = 3;
+    int itemDeliveryBonus = 300;
 
     bool check;
 
-    private void Start()
+    bool isItemDelivery = false;
+
+    private void Awake()
     {
+        currentDP = dp;
+        txtmoney = txtmoneyobj;
+        numDel = numDelobj;
         gameManager = GameManager.instance;
         LoadValues();
-        
-        
+
+
         //ResetValue();
         Msg();
-        
+
         if (delCount != 0)
         {
             deliveriesCanvas.SetActive(true);
@@ -84,55 +100,97 @@ public class Interactions : MonoBehaviour
         RefreshDisplay();
     }
 
-    private void Awake()
-    {
-        txtmoney = txtmoneyobj;
-        numDel = numDelobj;
-    }
+
+    //private void OnControllerColliderHit(ControllerColliderHit hit)
+    //{
+    //    if (hit.gameObject.CompareTag("AICars"))
+    //    {
+    //        playerLife -= hit.gameObject.GetComponentInParent<AICarMove>().CarSpeed;
+
+            //if (playerLife <= 0)
+            //{
+            //    hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn                
+            //}
+            //if (playerLife <= 0 && inDelivery == 1 && numLife > 0)
+            //{
+            //    hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn
+            //    numLife--;
+            //}
+            //if (playerLife <= 0 && inDelivery == 1 && numLife <= 0)
+            //{
+            //    deliveriesCanvas.SetActive(false);
+            //    this.gameObject.transform.position.Set(-70.201f, -15.548f, 10.453f);//reset position
+            //    ResetValue();
+            //    hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn
+            //    FailText.SetActive(true);
+            //    Invoke("HideFailText", 5);
+            //    DTWaypoint.SetActive(true);
+            //}
+            //if (playerLife <= 0) 
+            //{ 
+            //    hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn                
+            //}
+            //if (playerLife <= 0 && inDelivery == 1 && numLife > 0)
+            //{
+            //    hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn
+            //    numLife--;
+            //}
+            //if (playerLife <= 0 && inDelivery == 1 && numLife <= 0)
+            //{
+            //    deliveriesCanvas.SetActive(false);
+            //    this.gameObject.transform.position.Set(-70.201f, -15.548f, 10.453f);//reset position
+            //    ResetValue();
+            //    hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn
+            //    FailText.SetActive(true);
+            //    Invoke("HideFailText", 5);
+            //    DTWaypoint.SetActive(true);
+            //}
+    //        if (playerLife <= 0) 
+    //        { 
+    //            hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn                
+    //        }
+    //        if (playerLife <= 0 && inDelivery == 1 && numLife > 0)
+    //        {
+    //            hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn
+    //            numLife--;
+    //        }
+    //        if (playerLife <= 0 && inDelivery == 1 && numLife <= 0)
+    //        {
+    //            deliveriesCanvas.SetActive(false);
+    //            this.gameObject.transform.position.Set(-70.201f, -15.548f, 10.453f);//reset position
+    //            ResetValue();
+    //            hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn
+    //            FailText.SetActive(true);
+    //            Invoke("HideFailText", 5);
+    //            DTWaypoint.SetActive(true);
+    //        }
 
 
-    private void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        if (hit.gameObject.CompareTag("AICars"))
-        {
-            playerLife -= hit.gameObject.GetComponentInParent<AICarMove>().CarSpeed;
-
-            if (playerLife <= 0) 
-            { 
-                hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn                
-            }
-            if (playerLife <= 0 && inDelivery == 1 && numLife > 0)
-            {
-                hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn
-                numLife--;
-            }
-            if (playerLife <= 0 && inDelivery == 1 && numLife <= 0)
-            {
-                deliveriesCanvas.SetActive(false);
-                this.gameObject.transform.position.Set(-70.201f, -15.548f, 10.453f);//reset position
-                ResetValue();
-                hit.gameObject.GetComponentInParent<AICarMove>().RespawnPlayer(this.gameObject);//respawn
-                FailText.SetActive(true);
-                Invoke("HideFailText", 10);
-                DTWaypoint.SetActive(true);
-            }
+    //    }
+    //}
                 
             
-        } 
-    }
+    //    } 
+    //}
+                
+            
+    //    } 
+    //}
     public void FailDelivery()
     {
         ResetValue();
         FailText.SetActive(true);
         Invoke("HideFailText", 10);
         DTWaypoint.SetActive(true);
+        CountTimer.ResetTimer();
+        timerCanvas.SetActive(false);
         RefreshDisplay();
     }
-    
+
 
     private void Project(int carSpeed)
     {
-       
+
     }
 
     private void OnTriggerEnter(Collider other)
@@ -152,7 +210,7 @@ public class Interactions : MonoBehaviour
         {
             dpoint = true;
             popup_Complete.SetActive(true);
-            
+
             //currentdel=id du dp
             currentDel = other.gameObject.GetComponentInParent<DPoints>().Id;
         }
@@ -160,7 +218,7 @@ public class Interactions : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.CompareTag("Terminal")) 
+        if (other.gameObject.CompareTag("Terminal"))
         {
             termInteract = false;
             popup_Accept.SetActive(false);
@@ -171,7 +229,7 @@ public class Interactions : MonoBehaviour
                 adddel.text = counter.ToString();
             }
         }
-        if(other.gameObject.CompareTag("DPoint"))
+        if (other.gameObject.CompareTag("DPoint"))
         {
             dpoint = false;
             popup_Complete.SetActive(false);
@@ -186,11 +244,12 @@ public class Interactions : MonoBehaviour
 
     public static void RefreshDisplay()
     {
-        numDel.text = "Delivered: " + completed.ToString()+"/"+delCount;
+        numDel.text = "Delivered: " + completed.ToString() + "/" + delCount;
         txtmoney.text = PlayerPrefs.GetInt("Money").ToString("D6") + "$";
+        
     }
 
-
+    
 
     public void OnTermInteract()
     {
@@ -203,11 +262,8 @@ public class Interactions : MonoBehaviour
             ShowCursor();
 
             termInteract = false;
-            
-            
-
         }
-        else if(shopInteract == true)
+        else if (shopInteract == true)
         {
             ShowCursor();
             Shop_terminal.SetActive(true);
@@ -223,16 +279,24 @@ public class Interactions : MonoBehaviour
         else if (dpoint)
         {
             Msg();
-            Dp[currentDel].SetActive(false);
+            dpItem[currentDel].SetActive(false);
             popup_Complete.SetActive(false);
             completed++;
             dpoint = false;
-            
+            for (int i = 0; i < dpItem.Length; i++)
+            {
+                if (!dpItem[i].activeInHierarchy)
+                {
+                    dpItem[i].gameObject.GetComponent<DPoints>().Id = 0;
+                    PlayerPrefs.SetInt(i.ToString(), 0);
+                }
+            }
 
             if (completed == delCount)
             {
                 delCompletText.SetActive(true);
                 deliveriesCanvas.SetActive(false);
+                
 
                 //msg deliveries completed
                 Invoke("HideDelCompletText", 10);
@@ -240,33 +304,67 @@ public class Interactions : MonoBehaviour
                 //set deliveries terminal waypoint
                 DTWaypoint.SetActive(true);
 
+
                 //argent proportieonnelle
-                if (delCount == 1) money += 200 + ((200 * score) / 50);
-                else if (delCount == 2) money += 460 + ((460 * score) / 50);
-                else if (delCount == 3) money += 750 + ((750 * score) / 50);
+                if (isItemDelivery)
+                {
+                    money += itemDeliveryBonus;
+                }                
+                if (delCount == 1)
+                {
+                    money += 200 + ((200 * score) / 50);
+                }
+                else if (delCount == 2)
+                {
+                    money += 460 + ((460 * score) / 50);
+                }
+                else if (delCount == 3)
+                {
+                    money += 750 + ((750 * score) / 50);
+                }
 
 
                 //reset values
-                ResetValue();
+
                 ThirdPersonController.MoveSpeed = 0.75f;
                 ThirdPersonController.SprintSpeed = 1.2f;
+                CountTimer.ResetTimer();
+                timerCanvas.SetActive(false);
 
 
+                for (int i = 0; i < dpItem.Length; i++)
+                {
+                    dpItem[i].gameObject.GetComponent<DPoints>().Id = 0;
+                    PlayerPrefs.SetInt(i.ToString(), 0);
+                }
                 Array.Clear(delArray, 0, delArray.Length);
-                
+                ResetValue();
+                PlayerPrefs.Save();
             }
-            Dp[currentDel].gameObject.GetComponent<DPoints>().Id = 0;
+            dpItem[currentDel].gameObject.GetComponent<DPoints>().Id = 0;
         }
-            //Msg();
-            SaveValues();
-            RefreshDisplay();
+        //Msg();
+        //SaveValues();
+        RefreshDisplay();
     }
-
+    public void ToggleDpArray()
+    {
+        if (currentDP == dp)
+        {
+            currentDP = dpItem;
+            isItemDelivery = true;
+        }
+        else
+        {
+            currentDP = dp;
+            isItemDelivery = false;
+        }
+    }
     public void AddDeliveryPoint()
     {
         if (counter < 3 - delCount) counter++;
         adddel.text = counter.ToString();
-        
+
     }
     public void DeleteDelPoint()
     {
@@ -304,17 +402,17 @@ public class Interactions : MonoBehaviour
         if (!check)
         {
             delArray[indexCount] = currentDel;
-            
+
         }
-        
+
     }
-       
+
     public void CloseShop()
     {
         Shop_terminal.SetActive(false);
         HideCursor();
         miniMap.SetActive(true);
-        
+
     }
 
     public void CloseMenus()
@@ -322,10 +420,10 @@ public class Interactions : MonoBehaviour
         popup_Accept.SetActive(false);
         HideCursor();
         mapCanvas.SetActive(false);
-        
-        
+
+
     }
-    
+
     public void Confirm()
     {
         miniMap.SetActive(false);
@@ -359,13 +457,13 @@ public class Interactions : MonoBehaviour
         GenerateDP();
         indexCount++;
 
-        Dp[currentDel].SetActive(true);
+        dpItem[currentDel].SetActive(true);
 
         //id de DP=currentdel
-        Dp[currentDel].gameObject.GetComponent<DPoints>().Id = currentDel;
+        dpItem[currentDel].gameObject.GetComponent<DPoints>().Id = currentDel;
 
-        
-        GameObject temp = Dp[currentDel];
+
+        GameObject temp = dpItem[currentDel];
         temp.transform.GetChild(0).gameObject.layer = 6;
         temp.transform.GetChild(0).transform.GetChild(0).gameObject.layer = 6;
         indexCount = 1;
@@ -409,7 +507,7 @@ public class Interactions : MonoBehaviour
 
     public int GetRandomNbr()
     {
-        return UnityEngine.Random.Range(1, Dp.Length);
+        return UnityEngine.Random.Range(1, currentDP.Length);
     }
 
     void SaveValues()
@@ -420,34 +518,39 @@ public class Interactions : MonoBehaviour
         PlayerPrefs.SetInt("inDelivery", inDelivery);
         PlayerPrefs.SetInt("PlayerLife", playerLife);
         PlayerPrefs.SetInt("numLife", numLife);
-        for (int i = 0; i < Dp.Length; i++)
+        for (int i = 0; i < dpItem.Length; i++)
         {
-            if (Dp[i].activeInHierarchy)
+            if (dpItem[i].activeInHierarchy)
             {
-                PlayerPrefs.SetInt(i.ToString(), Dp[i].gameObject.GetComponent<DPoints>().Id);
+                PlayerPrefs.SetInt(i.ToString(), dpItem[i].gameObject.GetComponent<DPoints>().Id);
             }
         }
+        PlayerPrefs.Save();
     }
 
     void LoadValues()
     {
-        //PlayerPrefs.SetInt("Money", 400);
         completed = PlayerPrefs.GetInt("Deliveries Completed", 0);
         delCount = PlayerPrefs.GetInt("Delivery Count", 0);
         inDelivery = PlayerPrefs.GetInt("inDelivery", 0);
         money = PlayerPrefs.GetInt("Money", 0);
         playerLife = PlayerPrefs.GetInt("PlayerLife", 100);
         numLife = PlayerPrefs.GetInt("numLife", 3);
-        for(int i = 0; i < Dp.Length; i++)
+        for (int i = 0; i < dpItem.Length; i++)
         {
-            if (PlayerPrefs.GetInt(i.ToString(), 0) != 0) 
-                Dp[i].SetActive(true);
-            
+            if (PlayerPrefs.GetInt(i.ToString(), 0) != 0)
+            {
+                dpItem[i].SetActive(true);
+                dpItem[i].gameObject.GetComponent<DPoints>().Id = i;
+
+            }
         }
     }
 
     void ResetValue()
     {
+        this.gameObject.GetComponent<PlayerManager>().Health = 100;
+        this.gameObject.GetComponent<PlayerManager>().HealthPoints = 100;
         delCount = 0;
         inDelivery = 0;
         completed = 0;
@@ -456,14 +559,16 @@ public class Interactions : MonoBehaviour
         playerLife = 100;
         numLife = 3;
         GameManager.score = 0;
-        for (int i = 0; i < Dp.Length; i++)
+        for (int i = 0; i < dpItem.Length; i++)
         {
-            Dp[i].gameObject.GetComponent<DPoints>().Id=0;            
-            Dp[i].SetActive(false);
-            SaveValues();
-            Array.Clear(delArray, 0, delArray.Length);
+            dpItem[i].SetActive(false);
+            if (!dpItem[i].activeInHierarchy)
+            {
+                dpItem[i].gameObject.GetComponent<DPoints>().Id = 0;
+                PlayerPrefs.SetInt(i.ToString(), 0);
+            }
         }
-        
+        Array.Clear(delArray, 0, delArray.Length);
         SaveValues();
     }
 
@@ -479,20 +584,25 @@ public class Interactions : MonoBehaviour
         //for (int i = 0; i < Dp.Length; i++) Debug.Log("dp" + i + ": " + PlayerPrefs.GetInt(i.ToString(), 0));
     }
 
-    private void OnApplicationQuit()
+    public void OnApplicationQuit()
     {
+        SaveValues();
         PlayerPrefs.Save();
     }
 
     public void OnEsc()
     {
-        if(esc == false)
+        if (esc == false)
         {
+            deliveriesCanvas.SetActive(false);
+            canvasEsc.SetActive(true);
             esc = true;
             ShowCursor();
         }
         else
         {
+            deliveriesCanvas.SetActive(true);
+            canvasEsc.SetActive(false);
             esc = false;
             HideCursor();
         }
@@ -512,7 +622,7 @@ public class Interactions : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
     }
 
-    public void Inventory()
+    public void toggleInventory()
     {
         Debug.Log("Inventory");
         inventory = !inventory;
@@ -530,12 +640,13 @@ public class Interactions : MonoBehaviour
     private void HideScore()
     {
         canvasScore.GetComponent<Canvas>().enabled = false;
-        endGame = false;
     }
     private void Update()
     {
         if (CountTimer.FailDelivery)
         {
+
+            CountTimer.ResetTimer();
             FailDelivery();
             CountTimer.FailDelivery = false;
         }
@@ -546,6 +657,7 @@ public class Interactions : MonoBehaviour
         }
         if (endGame)
         {
+            endGame = false;
             Invoke("HideScore", 10);
             miniMap.SetActive(true);
             this.GetComponent<PlayerInput>().enabled = true;
@@ -555,10 +667,16 @@ public class Interactions : MonoBehaviour
             {
                 Destroy(element);
             }
+            //SceneManager.UnloadSceneAsync(1);
         }
         if (Input.GetButtonDown("Inventory"))
         {
-            Inventory();
+            toggleInventory();
+        }
+        if (Input.GetButtonDown("Cancel"))
+        {
+
+            OnEsc();
         }
     }
 }
